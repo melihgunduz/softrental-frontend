@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
-import {reactive} from 'vue';
+import { ref } from 'vue';
 
 export const useWalletStore = defineStore('wallet-store', () => {
 
-  const User = reactive({
-    address: "",
-
+  const User = ref({
+    address: '',
+    connected: false,
   })
-  function checkMetamask () {
-    window.ethereum.on('accountsChanged', () => {
-      console.log("address changed")
-    });
+
+  function setUser(walletAddress = '', connected = false) {
+    User.value.address = walletAddress;
+    User.value.connected = connected;
   }
-  return {checkMetamask}
+
+
+  return {User,setUser}
 })
