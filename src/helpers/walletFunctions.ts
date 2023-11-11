@@ -14,36 +14,27 @@ export const getEthereumContract = async () => {
 // Check if user connected his wallet
 export const checkWalletIsConnected = async () => {
   const walletStore = useWalletStore();
-  window.ethereum
-    .request({ method: 'eth_accounts' })
-    .then(async (val: Array<string>) => {
-      if (val.length !== 0) {
-        const userAddress = ethers.getAddress(val[0]);
-        walletStore.setUser(userAddress, true);
-      } else {
-        const confirm = window.confirm('Do you want to connect a wallet');
-        if (confirm) {
-          await checkWalletIsConnected();
-        }
-      }
-    });
+  return walletStore.User.connected;
 };
 
 // Send request to metamask and connect wallet
 export const connectWallet = async () => {
   const walletStore = useWalletStore();
+  const isConnected = await checkWalletIsConnected();
   if (!window.ethereum) return alert('Metamask is not installed.'); // check is metamask installed
-  await window.ethereum
-    .request({ method: 'eth_requestAccounts' })
-    .then(async (val: Array<string>) => {
-      if (val.length !== 0) {
-        const userAddress = ethers.getAddress(val[0]);
-        walletStore.setUser(userAddress, true);
-      } else {
-        walletStore.setUser();
-      }
-    })
-    .catch((e) => {
-      return e.code;
-    });
+  if (!isConnected) {
+    await window.ethereum
+      .request({ method: 'eth_requestAccounts' })
+      .then(async (val: Array<string>) => {
+        if (val.length !== 0) {
+          const userAddress = ethers.getAddress(val[0]);
+          walletStore.setUser(userAddress, true);
+        } else {
+          walletStore.setUser();
+        }
+      })
+      .catch((e) => {
+        return e.code;
+      });
+  }
 };

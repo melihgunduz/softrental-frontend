@@ -27,3 +27,9 @@ window.ethereum.on('accountsChanged', async (accounts: Array<string>) => {
   }
 });
 </script>
+
+<style>
+main {
+  background-color: #e1d7c0;
+}
+</style>
