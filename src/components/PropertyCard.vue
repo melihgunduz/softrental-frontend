@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Property } from 'components/models';
 import { ref } from 'vue';
+import { getEthereumContract } from 'src/helpers/contractFunctions';
+
+const rent = async () => {
+  console.log('test');
+};
 
 interface Props {
   property?: Property;
@@ -19,7 +24,7 @@ const props = defineProps<Props>();
       <q-card-section>{{ props.property.adres }}</q-card-section>
       <q-card-section>{{ props.property.name }}</q-card-section>
       <q-card-actions class="justify-center">
-        <q-btn label="Rent" class="full-width" no-caps color="positive" />
+        <q-btn label="Rent" class="full-width" no-caps color="positive" @click="rent" />
       </q-card-actions>
     </q-card>
   </div>

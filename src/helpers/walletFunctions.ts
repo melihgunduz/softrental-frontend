@@ -2,15 +2,6 @@ import { ethers } from 'ethers';
 import { contractABI, contractAddress } from 'src/smart-contract/contract';
 import { useWalletStore } from 'stores/wallet-store';
 
-//Get projects contract
-export const getEthereumContract = async () => {
-  // Connect current user as signer and get smart contract.
-  if (!window.ethereum) return alert('Metamask is not installed.'); // Check if metamask installed.
-  const provider = new ethers.BrowserProvider(window.ethereum); // Get provider
-  const signer = await provider.getSigner();
-  return new ethers.Contract(contractAddress, contractABI, signer); // Return smart contract
-};
-
 // Check if user connected his wallet
 export const checkWalletIsConnected = async () => {
   const walletStore = useWalletStore();

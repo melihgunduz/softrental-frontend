@@ -31,7 +31,11 @@ const user = computed(() => {
   <q-layout view="hHh lpR fFf">
     <q-header reveal class="bg-primary q-pa-md">
       <q-toolbar>
-        <q-toolbar-title class="text-black"> header</q-toolbar-title>
+        <q-toolbar-title>
+          <q-avatar>
+            <img src="src/assets/softrental.svg" />
+          </q-avatar>
+        </q-toolbar-title>
         <q-space />
         <div class="q-gutter-sm">
           <q-btn

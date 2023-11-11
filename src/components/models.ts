@@ -12,3 +12,10 @@ export interface Property {
   start: number;
   votes: number;
 }
+
+export interface CreatePropertyInterface {
+  name: string;
+  sort: string;
+  adres: string;
+  price: number;
+}

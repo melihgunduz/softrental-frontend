@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import PropertyCard from 'components/PropertyCard.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Property } from 'components/models';
+import { getProperties } from 'src/helpers/contractFunctions';
+
+onMounted(async () => {
+  await getProperties();
+});
 
 const property = ref<Property>({
   owner: 'string',
