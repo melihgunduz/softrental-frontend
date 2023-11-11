@@ -1,6 +1,9 @@
 <script setup>
 import { connectWallet } from 'src/helpers/walletFunctions';
+import { computed } from 'vue';
+import { useWalletStore } from 'stores/wallet-store';
 
+const walletStore = useWalletStore();
 const buttons = [
   {
     link: 'home',
@@ -15,6 +18,13 @@ const buttons = [
     label: 'Profile',
   },
 ];
+
+const user = computed(() => {
+  return {
+    walletAddress: walletStore.User.address,
+    isConnected: walletStore.User.connected,
+  };
+});
 </script>
 
 <template>
@@ -38,7 +48,17 @@ const buttons = [
             no-caps
             rounded
           />
-          <q-btn @click="connectWallet" no-caps no-wrap rounded push :ripple="false" label="Connect Wallet" color="pink-5" />
+          <q-btn
+            :disable="user.isConnected"
+            @click="connectWallet"
+            no-caps
+            no-wrap
+            rounded
+            push
+            :ripple="false"
+            :label="user.isConnected ? user.walletAddress.slice(0, 6) + '...' + user.walletAddress.slice(39, 42) : 'Connect Wallet'"
+            color="pink-5"
+          />
         </div>
       </q-toolbar>
     </q-header>

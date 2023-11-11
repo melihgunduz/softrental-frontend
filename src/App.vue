@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { useWalletStore } from 'stores/wallet-store';
 import { ethers } from 'ethers';
-import { checkWalletIsConnected } from 'src/helpers/walletFunctions';
+import { checkNetwork, checkWalletIsConnected } from 'src/helpers/walletFunctions';
 import { onMounted } from 'vue';
 
 const walletStore = useWalletStore();
@@ -22,6 +22,13 @@ window.ethereum.on('accountsChanged', async (accounts: Array<string>) => {
     } else {
       walletStore.setUser();
     }
+  } catch (e) {
+    throw new Error(e);
+  }
+});
+window.ethereum.on('chainChanged', async (val: string) => {
+  try {
+    await checkNetwork();
   } catch (e) {
     throw new Error(e);
   }
