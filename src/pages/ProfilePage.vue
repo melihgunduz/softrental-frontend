@@ -1,7 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import PropertyCard from 'components/PropertyCard.vue';
+</script>
 
 <template>
-  <q-page padding class="row items-center justify-center">
-    <h1>Profile</h1>
-  </q-page>
+  <q-page padding class="row items-center justify-center"> </q-page>
 </template>

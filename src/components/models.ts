@@ -1,8 +1,14 @@
-export interface Todo {
+// noinspection SpellCheckingInspection
+export interface Property {
+  owner: string;
+  hirer: string;
+  isAvailable: boolean;
   id: number;
-  content: string;
-}
-
-export interface Meta {
-  totalCount: number;
+  adres: string;
+  name: string;
+  sort: string;
+  end: number;
+  price: number;
+  start: number;
+  votes: number;
 }

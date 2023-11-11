@@ -6,7 +6,7 @@ import { useWalletStore } from 'stores/wallet-store';
 const walletStore = useWalletStore();
 const buttons = [
   {
-    link: 'home',
+    link: '/',
     label: 'Home',
   },
   {
@@ -29,7 +29,7 @@ const user = computed(() => {
 
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header class="bg-primary q-pa-md">
+    <q-header reveal class="bg-primary q-pa-md">
       <q-toolbar>
         <q-toolbar-title class="text-black"> header</q-toolbar-title>
         <q-space />
