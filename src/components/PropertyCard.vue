@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Property } from 'components/models';
 import { getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
-import { computed, ComputedRef, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useWalletStore } from 'stores/wallet-store';
 import { usePropertiesStore } from 'stores/properties-store';
 
@@ -18,6 +18,10 @@ const requestsModal = ref(false);
 
 const owner = computed(() => {
   return props.property?.owner === userStore.User.address;
+});
+
+const hirer = computed(() => {
+  return props.property?.hirer === userStore.User.address;
 });
 
 const requests = computed(() => {
@@ -117,9 +121,17 @@ const rentProperty = async () => {
           {{ props.property.adres }}
         </div>
       </q-card-section>
-      <q-card-section>{{ props.property.owner.slice(0, 6) }}...{{ props.property.owner.slice(39, 42) }}</q-card-section>
-      <q-card-actions v-if="!props.property.isAvailable" align="center">
-        <q-badge class="text-bold q-pa-sm q-ma-xs" label="Rented" rounded text-color="black" color="secondary" multi-line />
+      <q-card-section>
+        <q-icon name="person" />
+        <div class="flex inline q-pl-xs">{{ props.property.owner.slice(0, 6) }}...{{ props.property.owner.slice(39, 42) }}</div>
+      </q-card-section>
+      <q-card-actions v-if="!props.property.isAvailable" :align="hirer || owner ? 'right' : 'center'">
+        <q-badge v-if="!hirer && !owner" class="text-bold q-pa-sm q-ma-xs" label="Rented" rounded text-color="black" color="secondary" multi-line />
+        <q-badge v-else class="text-bold q-pa-sm q-ma-xs" :label="owner ? 'Owner' : 'Hirer'" rounded text-color="black" color="accent" multi-line />
+        <div v-if="hirer || owner">
+          <q-btn label="Break" no-caps flat :ripple="false" color="negative" />
+          <q-btn label="Create Complaint" no-caps flat :ripple="false" color="negative" />
+        </div>
       </q-card-actions>
       <q-card-actions v-else-if="!owner" align="center">
         <q-btn label="Rent" class="full-width" no-caps color="positive" @click="sendRequest" />

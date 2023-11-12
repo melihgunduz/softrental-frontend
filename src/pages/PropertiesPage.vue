@@ -40,7 +40,7 @@ const properties = computed(() => {
   </q-page>
   <q-page v-else padding>
     <div class="row q-col-gutter-sm wrap justify-start items-start content-start">
-      <PropertyCard v-for="property in properties" :key="property" :property="property" />
+      <PropertyCard v-for="property in properties" :key="property" :property="property.isAvailable ? property : undefined" />
     </div>
   </q-page>
 </template>
