@@ -104,7 +104,11 @@ const sendRequest = async () => {
         });
       })
       .catch((err) => {
-        console.error(err.reason);
+        $q.notify({
+          message: err.reason,
+          color: 'negative',
+          position: 'top-right',
+        });
       });
   }
 };
