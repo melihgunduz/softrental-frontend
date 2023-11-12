@@ -7,6 +7,7 @@ import { useWalletStore } from 'stores/wallet-store';
 import { ethers } from 'ethers';
 import { checkNetwork, checkWalletIsConnected } from 'src/helpers/walletFunctions';
 import { onMounted } from 'vue';
+import MainLayout from 'layouts/MainLayout.vue';
 
 const walletStore = useWalletStore();
 
