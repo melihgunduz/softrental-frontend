@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Property } from 'components/models';
-import { getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
+import { createComplaint, getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
 import { computed, ref } from 'vue';
 import { useWalletStore } from 'stores/wallet-store';
 import { usePropertiesStore } from 'stores/properties-store';
@@ -15,6 +15,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const requestsModal = ref(false);
+const complaintModal = ref(false);
 
 const owner = computed(() => {
   return props.property?.owner === userStore.User.address;
@@ -31,13 +32,9 @@ const requests = computed(() => {
 const sendRequest = async () => {
   if (props.property?.id) {
     const id: string = props.property?.id.toString();
-    await sendRentRequest(id)
-      .then((val) => {
-        console.log(val);
-      })
-      .catch((err) => {
-        console.error(err.reason);
-      });
+    await sendRentRequest(id).catch((err) => {
+      console.error(err.reason);
+    });
   }
 };
 
@@ -55,8 +52,24 @@ const getRequests = async () => {
   }
 };
 
+const confirmComplaint = async () => {
+  try {
+    if (props.property?.id && isComplaintReason.value) {
+      await createComplaint(props.property?.id.toString(), complaintReason.value, props.property?.owner === userStore.User.address).catch(
+        (e) => new Error(e)
+      );
+    }
+  } catch (e) {}
+};
+
 const rentTo = ref<string>('');
 const rentalTime = ref<number>(0);
+
+const complaintReason = ref<string>('');
+
+const isComplaintReason = computed(() => {
+  return complaintReason.value.length > 4;
+});
 
 const rentProperty = async () => {
   if (props.property?.id && typeof rentTo.value !== 'undefined' && typeof rentalTime.value !== 'undefined') {
@@ -98,9 +111,43 @@ const rentProperty = async () => {
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="complaintModal" persistent transition-show="fade" transition-hide="fade">
+    <q-card class="bg-secondary">
+      <q-card-section>
+        <div class="text-h6 no-pointer-events">
+          Create complaint for
+          {{ props.property.owner === userStore.User.address ? 'hirer' : 'owner' }}
+        </div>
+      </q-card-section>
+      <q-card-section class="q-pt-none">
+        <q-input
+          :error="!isComplaintReason"
+          error-message="Complaint reason is mandatory"
+          type="textarea"
+          label="Reason"
+          color="black"
+          v-model="complaintReason"
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn
+          label="Cancel"
+          no-caps
+          flat
+          :ripple="false"
+          @click="
+            complaintModal = false;
+            complaintReason = '';
+          "
+          color="negative"
+        />
+        <q-btn label="Send" no-caps flat :ripple="false" color="positive" @click="confirmComplaint" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
   <div v-if="props.property" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 overflow-auto">
     <q-card>
-      <q-card-section horizontal>
+      <q-card-section horizontal class="no-pointer-events">
         <q-card-section class="flex items-center">
           <q-icon name="category" />
           <div class="flex inline q-pl-xs">
@@ -115,28 +162,44 @@ const rentProperty = async () => {
           </div>
         </q-card-section>
       </q-card-section>
-      <q-card-section class="flex items-center">
+      <q-card-section class="no-pointer-events flex items-center">
         <q-icon name="location_on" />
         <div class="flex inline q-pl-xs">
           {{ props.property.adres }}
         </div>
       </q-card-section>
-      <q-card-section>
+      <q-card-section class="no-pointer-events">
         <q-icon name="person" />
         <div class="flex inline q-pl-xs">{{ props.property.owner.slice(0, 6) }}...{{ props.property.owner.slice(39, 42) }}</div>
       </q-card-section>
       <q-card-actions v-if="!props.property.isAvailable" :align="hirer || owner ? 'right' : 'center'">
-        <q-badge v-if="!hirer && !owner" class="text-bold q-pa-sm q-ma-xs" label="Rented" rounded text-color="black" color="secondary" multi-line />
-        <q-badge v-else class="text-bold q-pa-sm q-ma-xs" :label="owner ? 'Owner' : 'Hirer'" rounded text-color="black" color="accent" multi-line />
-        <div v-if="hirer || owner">
+        <q-badge
+          v-if="!hirer && !owner"
+          class="text-bold q-pa-sm q-ma-xs no-pointer-events"
+          label="Rented"
+          rounded
+          text-color="black"
+          color="secondary"
+          multi-line
+        />
+        <q-badge
+          v-else
+          class="text-bold q-pa-sm q-ma-xs no-pointer-events"
+          :label="owner ? 'Owner' : 'Hirer'"
+          rounded
+          text-color="black"
+          color="accent"
+          multi-line
+        />
+        <div v-if="(hirer || owner) && !property?.isAvailable">
           <q-btn label="Break" no-caps flat :ripple="false" color="negative" />
-          <q-btn label="Create Complaint" no-caps flat :ripple="false" color="negative" />
+          <q-btn label="Create Complaint" no-caps flat :ripple="false" color="negative" @click="complaintModal = true" />
         </div>
       </q-card-actions>
-      <q-card-actions v-else-if="!owner" align="center">
+      <q-card-actions v-if="!hirer && !owner && property?.isAvailable" align="center">
         <q-btn label="Rent" class="full-width" no-caps color="positive" @click="sendRequest" />
       </q-card-actions>
-      <q-card-actions v-else align="right">
+      <q-card-actions v-if="owner && property?.isAvailable" align="right">
         <q-btn label="Delete" no-caps flat :ripple="false" color="negative" />
         <q-btn label="Get rent requests" no-caps flat :ripple="false" color="positive" @click="getRequests" />
       </q-card-actions>

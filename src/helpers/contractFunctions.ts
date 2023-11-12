@@ -2,6 +2,7 @@
 import { ethers } from 'ethers';
 import { contractABI, contractAddress } from 'src/smart-contract/contract';
 import { usePropertiesStore } from 'stores/properties-store';
+import { useWalletStore } from 'stores/wallet-store';
 
 export const createProperty = async (name: string, sort: string, adres: string, price: number) => {
   const contract = await getEthereumContract();
@@ -44,6 +45,15 @@ export const getRentRequests = async (id: string) => {
     return requests;
   });
 };
+export const createComplaint = async (id: string, reason: string, isOwner: boolean) => {
+  const contract = await getEthereumContract();
+  if (isOwner) {
+    contract.createComplaintForHirer(id, reason).catch((e: any) => new Error(e));
+  } else {
+    contract.createComplaintForOwner(id, reason).catch((e: any) => new Error(e));
+  }
+};
+
 export const rent = async (id: string, address: string, time: number) => {
   const contract = await getEthereumContract();
   return await contract.rentProperty(id, address, time);
