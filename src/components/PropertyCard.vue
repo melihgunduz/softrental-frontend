@@ -116,30 +116,46 @@ const sendRequest = async () => {
 const rentProperty = async () => {
   if (props.property?.id && typeof rentTo.value !== 'undefined' && typeof rentalTime.value !== 'undefined') {
     const id: string = props.property?.id.toString();
-    await rent(id, rentTo.value, rentalTime.value).then(() => {
-      $q.notify({
-        message: 'Rent request confirmed',
-        color: 'positive',
-        position: 'top-right',
+    await rent(id, rentTo.value, rentalTime.value)
+      .then(() => {
+        $q.notify({
+          message: 'Rent request confirmed',
+          color: 'positive',
+          position: 'top-right',
+        });
+        requestsModal.value = false;
+        dialog.value = false;
+        rentTo.value = '';
+        rentalTime.value = 0;
+      })
+      .catch((err) => {
+        $q.notify({
+          message: err.name,
+          color: 'negative',
+          position: 'top-right',
+        });
       });
-      requestsModal.value = false;
-      dialog.value = false;
-      rentTo.value = '';
-      rentalTime.value = 0;
-    });
   }
 };
 
 const deleteProperty = async () => {
-  if (props.property?.id && typeof rentTo.value !== 'undefined' && typeof rentalTime.value !== 'undefined') {
+  if (props.property?.id) {
     const id: string = props.property?.id.toString();
-    await propertyDelete(id).then(() => {
-      $q.notify({
-        message: 'Property deleted',
-        color: 'positive',
-        position: 'top-right',
+    await propertyDelete(id)
+      .then(() => {
+        $q.notify({
+          message: 'Property deleted',
+          color: 'positive',
+          position: 'top-right',
+        });
+      })
+      .catch((err) => {
+        $q.notify({
+          message: err,
+          color: 'negative',
+          position: 'top-right',
+        });
       });
-    });
   }
 };
 </script>
