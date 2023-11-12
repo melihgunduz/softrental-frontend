@@ -1,43 +1,63 @@
 # Softrental renting dApp (softrental-frontend)
 
-Paribu Hub Bootcamp project
+This project is a frontend part of Paribu Hub Bootcamp final project. You can find smart contract of this project in my repo.
 
-## Install the dependencies
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Run](#run)
+
+
+## Overview
+
+This frontend app provides user to a easy interactions with smart contract.
+
+## Features
+
+- You can run every user functions in smart contract.
+- Create property in blockchain.
+- Rent property.
+- Send rent request.
+- Delete property.
+- Create complaint for property owner or hirer.
+
+## Getting Started
+
+Follow the steps inside the projects to set up the whole project locally.
+
+### Prerequisites
+
+1. Node.js: Ensure Node.js is installed. Download it from [nodejs.org](https://nodejs.org/).
+2. Be sure you have installed your Metamask wallet.
+3. Get some TBNB from BNB Testnet Faucet: https://testnet.bnbchain.org/faucet-smart
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
-yarn
-# or
-npm install
+  git clone https://github.com/melihgunduz/softrental-frontend.git
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+2. Navigate to the project directory:
 
 ```bash
-quasar dev
+  cd softrental-frontend
 ```
 
-### Lint the files
+3. Install required npm packages:
 
 ```bash
-yarn lint
-# or
-npm run lint
+ npm install
 ```
 
-### Format the files
+## Run
+To run app follow this code
 
 ```bash
-yarn format
-# or
-npm run format
+  quasar dev
 ```
-
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
