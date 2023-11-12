@@ -45,6 +45,11 @@ export const getRentRequests = async (id: string) => {
     return requests;
   });
 };
+
+export const breakAgreement = async (id: string) => {
+  const contract = await getEthereumContract();
+  return await contract.createBreakRequest(id);
+};
 export const createComplaint = async (id: string, reason: string, isOwner: boolean) => {
   const contract = await getEthereumContract();
   if (isOwner) {

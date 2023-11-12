@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Property } from 'components/models';
-import { createComplaint, getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
+import { breakAgreement, breakComplaint, createComplaint, getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
 import { computed, ref } from 'vue';
 import { useWalletStore } from 'stores/wallet-store';
 import { usePropertiesStore } from 'stores/properties-store';
+import { useQuasar } from 'quasar';
 
 const userStore = useWalletStore();
 const propertiesStore = usePropertiesStore();
+const $q = useQuasar();
 
 interface Props {
   property?: Property;
@@ -14,8 +16,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const requestsModal = ref(false);
+const breakModal = ref(false);
 const complaintModal = ref(false);
+const requestsModal = ref(false);
+const dialog = ref(false);
 
 const owner = computed(() => {
   return props.property?.owner === userStore.User.address;
@@ -29,39 +33,6 @@ const requests = computed(() => {
   return propertiesStore.propertyRequests;
 });
 
-const sendRequest = async () => {
-  if (props.property?.id) {
-    const id: string = props.property?.id.toString();
-    await sendRentRequest(id).catch((err) => {
-      console.error(err.reason);
-    });
-  }
-};
-
-const getRequests = async () => {
-  if (props.property?.id) {
-    const id: string = props.property?.id.toString();
-    await getRentRequests(id)
-      .then((requests) => {
-        propertiesStore.setPropertyRequests(requests);
-        requestsModal.value = true;
-      })
-      .catch((err) => {
-        console.error(err.reason);
-      });
-  }
-};
-
-const confirmComplaint = async () => {
-  try {
-    if (props.property?.id && isComplaintReason.value) {
-      await createComplaint(props.property?.id.toString(), complaintReason.value, props.property?.owner === userStore.User.address).catch(
-        (e) => new Error(e)
-      );
-    }
-  } catch (e) {}
-};
-
 const rentTo = ref<string>('');
 const rentalTime = ref<number>(0);
 
@@ -71,11 +42,85 @@ const isComplaintReason = computed(() => {
   return complaintReason.value.length > 4;
 });
 
+const breakRenting = async () => {
+  try {
+    if (props.property?.id) {
+      await breakAgreement(props.property?.id.toString())
+        .then(() => {
+          $q.notify({
+            message: 'Break request sent',
+            color: 'positive',
+            position: 'top-right',
+          });
+        })
+        .catch((e) => new Error(e));
+    }
+  } catch (e: any) {
+    throw new Error(e);
+  }
+};
+
+const confirmComplaint = async () => {
+  try {
+    if (props.property?.id && isComplaintReason.value) {
+      await createComplaint(props.property?.id.toString(), complaintReason.value, props.property?.owner === userStore.User.address)
+        .then(() => {
+          complaintModal.value = false;
+          dialog.value = false;
+          complaintReason.value = '';
+          $q.notify({
+            message: 'Complaint sent',
+            color: 'positive',
+            position: 'top-right',
+          });
+        })
+        .catch((e) => new Error(e));
+    }
+  } catch (e) {}
+};
+
+const getRequests = async () => {
+  if (props.property?.id) {
+    const id: string = props.property?.id.toString();
+    await getRentRequests(id)
+      .then((requests) => {
+        propertiesStore.setPropertyRequests(requests);
+        requestsModal.value = true;
+        dialog.value = true;
+      })
+      .catch((err) => {
+        console.error(err.reason);
+      });
+  }
+};
+const sendRequest = async () => {
+  if (props.property?.id) {
+    const id: string = props.property?.id.toString();
+    await sendRentRequest(id)
+      .then(() => {
+        $q.notify({
+          message: 'Request sent to the property owner',
+          color: 'positive',
+          position: 'top-right',
+        });
+      })
+      .catch((err) => {
+        console.error(err.reason);
+      });
+  }
+};
+
 const rentProperty = async () => {
   if (props.property?.id && typeof rentTo.value !== 'undefined' && typeof rentalTime.value !== 'undefined') {
     const id: string = props.property?.id.toString();
     await rent(id, rentTo.value, rentalTime.value).then(() => {
+      $q.notify({
+        message: 'Rent request confirmed',
+        color: 'positive',
+        position: 'top-right',
+      });
       requestsModal.value = false;
+      dialog.value = false;
       rentTo.value = '';
       rentalTime.value = 0;
     });
@@ -84,8 +129,8 @@ const rentProperty = async () => {
 </script>
 
 <template>
-  <q-dialog v-model="requestsModal" persistent transition-show="fade" transition-hide="fade">
-    <q-card class="bg-secondary">
+  <q-dialog v-model="dialog" persistent transition-show="fade" transition-hide="fade">
+    <q-card v-if="requestsModal" class="bg-secondary">
       <q-card-section>
         <div class="text-h6">Rent requests for {{ props.property.name }}</div>
       </q-card-section>
@@ -102,6 +147,7 @@ const rentProperty = async () => {
           :ripple="false"
           @click="
             requestsModal = false;
+            dialog = false;
             rentTo = '';
             rentalTime = 0;
           "
@@ -110,9 +156,8 @@ const rentProperty = async () => {
         <q-btn label="Rent" no-caps flat :ripple="false" color="positive" @click="rentProperty" />
       </q-card-actions>
     </q-card>
-  </q-dialog>
-  <q-dialog v-model="complaintModal" persistent transition-show="fade" transition-hide="fade">
-    <q-card class="bg-secondary">
+
+    <q-card v-else-if="complaintModal" class="bg-secondary">
       <q-card-section>
         <div class="text-h6 no-pointer-events">
           Create complaint for
@@ -137,6 +182,7 @@ const rentProperty = async () => {
           :ripple="false"
           @click="
             complaintModal = false;
+            dialog = false;
             complaintReason = '';
           "
           color="negative"
@@ -145,6 +191,7 @@ const rentProperty = async () => {
       </q-card-actions>
     </q-card>
   </q-dialog>
+
   <div v-if="props.property" class="col-xs-12 col-sm-6 col-md-4 col-lg-3 overflow-auto">
     <q-card>
       <q-card-section horizontal class="no-pointer-events">
@@ -192,8 +239,18 @@ const rentProperty = async () => {
           multi-line
         />
         <div v-if="(hirer || owner) && !property?.isAvailable">
-          <q-btn label="Break" no-caps flat :ripple="false" color="negative" />
-          <q-btn label="Create Complaint" no-caps flat :ripple="false" color="negative" @click="complaintModal = true" />
+          <q-btn label="Break" no-caps flat :ripple="false" color="negative" @click="breakRenting" />
+          <q-btn
+            label="Create Complaint"
+            no-caps
+            flat
+            :ripple="false"
+            color="negative"
+            @click="
+              complaintModal = true;
+              dialog = true;
+            "
+          />
         </div>
       </q-card-actions>
       <q-card-actions v-if="!hirer && !owner && property?.isAvailable" align="center">
