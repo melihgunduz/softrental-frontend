@@ -1,6 +1,7 @@
 //Get projects contract
 import { ethers } from 'ethers';
 import { contractABI, contractAddress } from 'src/smart-contract/contract';
+import { usePropertiesStore } from 'stores/properties-store';
 
 export const getEthereumContract = async () => {
   // Connect current user as signer and get smart contract.
@@ -10,15 +11,22 @@ export const getEthereumContract = async () => {
   return new ethers.Contract(contractAddress, contractABI, signer); // Return smart contract
 };
 
-export const getProperties = async () => {
+export const getPropertyIds: () => Promise<string> = async () => {
   const contract = await getEthereumContract();
   try {
-    await contract.getProperties().then(async (tx: any) => {
-      console.log(await tx);
+    return await contract.getProperties().then(async (properties: Array<string>) => {
+      return properties ? properties : [];
     });
   } catch (e) {
     throw new Error(e);
   }
+};
+export const getProperty = async (id: string) => {
+  const propertiesStore = usePropertiesStore();
+  const contract = await getEthereumContract();
+  await contract.getPropertyInfo(id).then(async (property: any) => {
+    propertiesStore.addProperty(property);
+  });
 };
 export const createProperty = async (name: string, sort: string, adres: string, price: number) => {
   const contract = await getEthereumContract();
