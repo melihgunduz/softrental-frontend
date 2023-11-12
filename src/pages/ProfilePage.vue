@@ -6,6 +6,9 @@ import { computed, onBeforeMount, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { usePropertiesStore } from 'stores/properties-store';
 import { useWalletStore } from 'stores/wallet-store';
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
 
 const propertiesStore = usePropertiesStore();
 const userStore = useWalletStore();
@@ -79,7 +82,13 @@ const closeModal = () => {
 };
 
 const create = async () => {
-  await createProperty(property.value.name, property.value.sort, property.value.adres, property.value.price);
+  await createProperty(property.value.name, property.value.sort, property.value.adres, property.value.price).then(() => {
+    $q.notify({
+      message: 'Property created',
+      color: 'positive',
+      position: 'top-right',
+    });
+  });
   prompt.value = false;
 };
 </script>

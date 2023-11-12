@@ -7,7 +7,7 @@ export const checkWalletIsConnected = async () => {
   const walletStore = useWalletStore();
   window.ethereum.request({ method: 'eth_accounts' }).then(async (val: Array<string>) => {
     if (val.length !== 0) {
-      walletStore.setUser(val[0], true);
+      walletStore.setUser(ethers.getAddress(val[0]), true);
     }
   });
   return walletStore.User.connected;
