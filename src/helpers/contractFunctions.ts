@@ -3,6 +3,16 @@ import { ethers } from 'ethers';
 import { contractABI, contractAddress } from 'src/smart-contract/contract';
 import { usePropertiesStore } from 'stores/properties-store';
 
+export const createProperty = async (name: string, sort: string, adres: string, price: number) => {
+  const contract = await getEthereumContract();
+  try {
+    await contract.createProperty(name, sort, adres, price).then(async (tx: any) => {
+      console.log(await tx);
+    });
+  } catch (e) {
+    throw new Error(e);
+  }
+};
 export const getEthereumContract = async () => {
   // Connect current user as signer and get smart contract.
   if (!window.ethereum) return alert('Metamask is not installed.'); // Check if metamask installed.
@@ -28,13 +38,20 @@ export const getProperty = async (id: string) => {
     propertiesStore.addProperty(property);
   });
 };
-export const createProperty = async (name: string, sort: string, adres: string, price: number) => {
+export const getRentRequests = async (id: string) => {
   const contract = await getEthereumContract();
-  try {
-    await contract.createProperty(name, sort, adres, price).then(async (tx: any) => {
-      console.log(await tx);
-    });
-  } catch (e) {
-    throw new Error(e);
-  }
+  return await contract.getRentRequests(id).then(async (requests: Array<string>) => {
+    return requests;
+  });
+};
+export const rent = async (id: string, address: string, time: number) => {
+  const contract = await getEthereumContract();
+  return await contract.rentProperty(id, address, time);
+};
+
+export const sendRentRequest = async (propertyId: string) => {
+  const contract = await getEthereumContract();
+  await contract.rentRequest(propertyId).then((val: object) => {
+    return val;
+  });
 };

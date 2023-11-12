@@ -4,6 +4,7 @@ import { Property } from 'components/models';
 
 export const usePropertiesStore = defineStore('properties-store', () => {
   const properties = ref<Property[]>([]);
+  const propertyRequests = ref<string[]>([]);
 
   function addProperty(info: any) {
     properties.value.push({
@@ -25,5 +26,9 @@ export const usePropertiesStore = defineStore('properties-store', () => {
     properties.value = [];
   }
 
-  return { properties, addProperty, clearProperties };
+  function setPropertyRequests(requests: Array<string>) {
+    propertyRequests.value = requests;
+  }
+
+  return { properties, propertyRequests, addProperty, clearProperties, setPropertyRequests };
 });
