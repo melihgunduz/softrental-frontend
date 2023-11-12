@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Property } from 'components/models';
-import { breakAgreement, breakComplaint, createComplaint, getRentRequests, rent, sendRentRequest } from 'src/helpers/contractFunctions';
+import { breakAgreement, createComplaint, getRentRequests, propertyDelete, rent, sendRentRequest } from 'src/helpers/contractFunctions';
 import { computed, ref } from 'vue';
 import { useWalletStore } from 'stores/wallet-store';
 import { usePropertiesStore } from 'stores/properties-store';
@@ -16,7 +16,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const breakModal = ref(false);
 const complaintModal = ref(false);
 const requestsModal = ref(false);
 const dialog = ref(false);
@@ -123,6 +122,19 @@ const rentProperty = async () => {
       dialog.value = false;
       rentTo.value = '';
       rentalTime.value = 0;
+    });
+  }
+};
+
+const deleteProperty = async () => {
+  if (props.property?.id && typeof rentTo.value !== 'undefined' && typeof rentalTime.value !== 'undefined') {
+    const id: string = props.property?.id.toString();
+    await propertyDelete(id).then(() => {
+      $q.notify({
+        message: 'Property deleted',
+        color: 'positive',
+        position: 'top-right',
+      });
     });
   }
 };
@@ -257,7 +269,7 @@ const rentProperty = async () => {
         <q-btn label="Rent" class="full-width" no-caps color="positive" @click="sendRequest" />
       </q-card-actions>
       <q-card-actions v-if="owner && property?.isAvailable" align="right">
-        <q-btn label="Delete" no-caps flat :ripple="false" color="negative" />
+        <q-btn label="Delete" no-caps flat :ripple="false" color="negative" @click="deleteProperty" />
         <q-btn label="Get rent requests" no-caps flat :ripple="false" color="positive" @click="getRequests" />
       </q-card-actions>
     </q-card>

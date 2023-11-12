@@ -59,6 +59,11 @@ export const createComplaint = async (id: string, reason: string, isOwner: boole
   }
 };
 
+export const propertyDelete = async (id: string) => {
+  const contract = await getEthereumContract();
+  contract.deleteProperty(id).catch((e: any) => new Error(e));
+};
+
 export const rent = async (id: string, address: string, time: number) => {
   const contract = await getEthereumContract();
   return await contract.rentProperty(id, address, time);
