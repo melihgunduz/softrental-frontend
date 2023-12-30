@@ -1,6 +1,6 @@
 # Softrental renting dApp (softrental-frontend)
 
-This project is a frontend part of Paribu Hub Bootcamp final project. You can find smart contract of this project in my repo.
+This project is a frontend part of Paribu Hub Bootcamp final project. You can find smart contract of this project in my repo. The smart contract of this project is here: https://github.com/melihgunduz/renting-smart-contract
 
 ## Table of Contents
 
